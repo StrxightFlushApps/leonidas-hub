@@ -14,6 +14,7 @@
     <a class="logo" href="/">LEONIDAS HUB</a>
     <nav>
       <a href="#features">Features</a>
+      <a href="#news">News</a>
       <a href="#download">Download</a>
       <a href="privacy.html">Privacy</a>
       <a href="impressum.html">Impressum</a>
@@ -24,7 +25,7 @@
     <section class="hero">
       <p class="eyebrow">Unofficial fan companion</p>
       <h1 class="title">LEONIDAS HUB</h1>
-      <p class="lede">Map. Wiki. News. Lex. Everything you need for the wait — and day one — in one place.</p>
+      <p class="lede" id="tagline">Map. Wiki. News. Lex. Everything you need for the wait — and day one — in one place.</p>
       <div class="cta" id="download">
         <a class="btn btn-primary" href="#download" aria-disabled="true">Google Play — soon</a>
         <a class="btn btn-ghost" href="#download" aria-disabled="true">App Store — in review</a>
@@ -32,27 +33,20 @@
       <p class="fine">Free · No account · No tracking</p>
     </section>
 
-    <section class="features" id="features">
-      <article>
-        <h2>Interactive map</h2>
-        <p>Explore Leonida with community pins, filters and “show on map” from the wiki.</p>
-      </article>
-      <article>
-        <h2>Wiki</h2>
-        <p>Locations, characters and more — offline-ready texts with your own images.</p>
-      </article>
-      <article>
-        <h2>News</h2>
-        <p>Verified updates in one feed, linked back to the map when it matters.</p>
-      </article>
-      <article>
-        <h2>Lex</h2>
-        <p>Ask about cars, places and lore — example prompts ready before launch unlock.</p>
-      </article>
+    <section class="features" id="features" aria-label="Features"></section>
+
+    <section class="news" id="news">
+      <div class="section-head">
+        <h2>Latest news</h2>
+        <p class="section-sub">Same feed as the app · <a href="https://strxightflushapps.github.io/news/news.json">news.json</a></p>
+      </div>
+      <div class="news-list" id="news-list">
+        <p class="fine">Loading…</p>
+      </div>
     </section>
 
     <section class="disclaimer">
-      <p>Leonidas Hub is an unofficial fan app. Not affiliated with or endorsed by Rockstar Games or Take-Two Interactive. All trademarks belong to their respective owners.</p>
+      <p id="disclaimer">Leonidas Hub is an unofficial fan app. Not affiliated with or endorsed by Rockstar Games or Take-Two Interactive. All trademarks belong to their respective owners.</p>
     </section>
   </main>
 
@@ -60,6 +54,46 @@
     <p>© <span id="y"></span> Leonidas Hub · <a href="mailto:leonidashubapp@gmail.com">leonidashubapp@gmail.com</a></p>
     <p><a href="impressum.html">Impressum</a> · <a href="privacy.html">Privacy Policy</a></p>
   </footer>
-  <script>document.getElementById('y').textContent = new Date().getFullYear()</script>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear()
+
+    const NEWS_URL = 'https://strxightflushapps.github.io/news/news.json'
+    const TOKENS_URL = 'brand/tokens.json'
+
+    function esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+    }
+
+    fetch(TOKENS_URL).then(r => r.json()).then(t => {
+      if (t.copy?.tagline) document.getElementById('tagline').textContent = t.copy.tagline
+      if (t.copy?.disclaimer) document.getElementById('disclaimer').textContent = t.copy.disclaimer
+      const box = document.getElementById('features')
+      const feats = t.features || []
+      box.innerHTML = feats.map(f =>
+        `<article><h2>${esc(f.title)}</h2><p>${esc(f.blurb)}</p></article>`
+      ).join('')
+    }).catch(() => {})
+
+    fetch(NEWS_URL).then(r => r.json()).then(feed => {
+      const items = (feed.items || []).slice(0, 6)
+      const box = document.getElementById('news-list')
+      if (!items.length) {
+        box.innerHTML = '<p class="fine">No news yet.</p>'
+        return
+      }
+      box.innerHTML = items.map(n => {
+        const href = n.url ? `href="${esc(n.url)}" target="_blank" rel="noopener noreferrer"` : ''
+        const badge = n.badge ? `<span class="badge">${esc(n.badge)}</span>` : ''
+        return `<article class="news-card">
+          <div class="news-meta"><time>${esc(n.date || '')}</time> ${badge}<span class="src">${esc(n.source || '')}</span></div>
+          <h3>${n.url ? `<a ${href}>${esc(n.title)}</a>` : esc(n.title)}</h3>
+          <p>${esc(n.summary || '')}</p>
+        </article>`
+      }).join('')
+    }).catch(() => {
+      document.getElementById('news-list').innerHTML = '<p class="fine">News feed unavailable right now.</p>'
+    })
+  </script>
 </body>
 </html>
