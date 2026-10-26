@@ -1,0 +1,15 @@
+:root {
+  --lh-pink: #FF3EA5;
+  --lh-purple: #B44CFF;
+  --lh-cyan: #22F0FF;
+  --lh-bg: #07060C;
+  --lh-bg-elevated: #12101A;
+  --lh-surface: #1A1726;
+  --lh-text: #F5F2FF;
+  --lh-text-muted: #A8A0C0;
+  --lh-border: #2A2540;
+  --lh-radius-md: 14px;
+  --lh-radius-lg: 22px;
+  --lh-title-gradient: linear-gradient(90deg, #FF3EA5 0%, #B44CFF 50%, #22F0FF 100%);
+  --lh-font: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
